@@ -1,6 +1,6 @@
 {
-  "name": "esp32-dht-key",
-  "version": "1.0.0",
+  "name": "serial-signer",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
