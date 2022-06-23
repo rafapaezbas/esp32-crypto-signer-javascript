@@ -1,0 +1,19 @@
+{
+  "name": "esp32-dht-key",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "brittle tests/*.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "serialport": "^10.4.0"
+  },
+  "devDependencies": {
+    "brittle": "^2.3.1",
+    "sodium-native": "^3.3.0"
+  }
+}
