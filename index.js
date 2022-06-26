@@ -68,7 +68,7 @@ module.exports = class SerialSigner {
   }
 
   async dh (key) {
-    return this._request(DH_HEADER + key, DH_LENGTH)
+    return this._request(Buffer.concat([Buffer.from(DH_HEADER), key]), DH_LENGTH)
   }
 
   async close () {
