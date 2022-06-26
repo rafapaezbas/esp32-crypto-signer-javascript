@@ -4,12 +4,14 @@ const { SerialPort } = require('serialport')
 const SIGNATURE_LENGTH = 64
 const PK_LENGTH = 32
 const DH_LENGTH = 32
+const PK_HEADER = '__public_key__'
+const DH_HEADER = '__dh__'
 
 let buffer = Buffer.alloc(0)
 
 module.exports = class SerialSigner {
   constructor (port) {
-    this.serialport = new SerialPort({ path: '/dev/ttyUSB0', baudRate: 115200 })
+    this.serialport = new SerialPort({ path: port, baudRate: 115200 })
     this.opened = false
     this.processing = false
     this.queue = [] // FIFO messages queue
@@ -33,16 +35,19 @@ module.exports = class SerialSigner {
     buffer = Buffer.concat([buffer, data])
     const first = this.queue[0]
     const next = this.queue[1]
+
+    const nextMessage = () => {
+      buffer = Buffer.alloc(0)
+      if (next) this.serialport.write(next.message)
+      this.queue.shift()
+    }
+
     if (buffer.length === first.responseLength) {
       first.resolve(buffer)
-      buffer = Buffer.alloc(0)
-      if (next) this.serialport.write(next.message)
-      this.queue.shift()
+      nextMessage()
     } else if (buffer.length > first.responseLength) {
       first.reject('Error in reading. Buffer size too large.')
-      buffer = Buffer.alloc(0)
-      if (next) this.serialport.write(next.message)
-      this.queue.shift()
+      nextMessage()
     }
   }
 
@@ -59,11 +64,11 @@ module.exports = class SerialSigner {
   }
 
   async publicKey () {
-    return this._request('__public_key__', PK_LENGTH)
+    return this._request(PK_HEADER, PK_LENGTH)
   }
 
-  async dh (publicKey) {
-    return this._request('__dh__', DH_LENGTH)
+  async dh (key) {
+    return this._request(DH_HEADER + key, DH_LENGTH)
   }
 
   async close () {
